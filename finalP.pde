@@ -2,14 +2,21 @@ PVector Avatar;
 PImage img;
 PImage backgroundimg;
 int dir;
+String[] inventory;
+PImage item; 
+int invpos;
+String itemname; 
+PVector itemPos; 
 
 void setup() {
   size(480, 350);
   noStroke();
   fill(0);
+  invpos = 0;
   Avatar = new PVector(220, 250);
   img = loadImage("avatarpixel.png");
   backgroundimg = loadImage("backgroundpixel.png");
+  inventory = new String[3];
 
         noStroke();
       fill(0);
@@ -21,6 +28,32 @@ void setup() {
       
       checkPos();
       updateAvatar();
+
+    }
+    
+    void takeItem(){
+      if (keyPressed == 'space') {
+          inventory[invpos] = name; 
+          invpos++;
+          deleteItem();
+          generateItem();
+      }
+    }
+    
+    void generateItem(String name){
+      itemname = name; 
+      item = loadImage("item.png");
+      itemPos = new PVector(random(width), random(height));
+      image(item, itemPos.x, itemPos.y, 10, 10);
+      
+    }
+    
+    void deleteItem(){
+      
+    }
+    
+    void displayInv(){
+      
     }
 
     void updateAvatar() {
@@ -73,5 +106,8 @@ void setup() {
       else if (key == 'd') {
         Avatar.x += 10;
         dir = 4;
+      }
+      else if (key == 'i') {
+        displayInv();
       }
     }
