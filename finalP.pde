@@ -7,43 +7,62 @@ ArrayList<PVector> items;
 ArrayList<PVector> inventory;
 ArrayList<String> uritemName;
 String[] itemName;
+ArrayList<RedTile> redTiles;
+ArrayList<PVector> removedItem;
+
 
 void setup() {
   size(600, 400);
-  gameMap = loadImage("game_map.png");  // Load the game map image
-  playerX = width/2;  // Start the player in the middle of the screen horizontally
-  playerY = height/2;  // Start the player in the middle of the screen vertically
+  gameMap = loadImage("game_map.png");  
+  playerX = width/2;  
+  playerY = height/2;  
   hasItem = false;
   items = new ArrayList<PVector>();
   inventory = new ArrayList<PVector>();
-  placeItems();  // Place the items randomly on the map
+  placeItems(); 
   itemName = new String[5];
   itemName[0] = "item1";
   itemName[1] = "item2";
   itemName[2] = "item3";
   itemName[3] = "item4";
   itemName[4] = "item5";  
+  
+  redTiles = new ArrayList<RedTile>();
+  generateRedTiles();
 }
 
 void draw() {
   background(255);
-  image(gameMap, 0, 0);  // Display the game map
+  image(gameMap, 0, 0); 
 
-  
-  // Draw the player as a red rectangle
-  fill(255, 0, 0);
+  fill(0, 0, 255);
   rect(playerX, playerY, tileSize, tileSize);
   
   if (key == 'i') {
     displayInventory();
   }
+  
+  for (RedTile tile : redTiles) {
+    tile.update();
+    tile.display();
+    
+    if (tile.isPlayerContact(playerX, playerY)) {
+      playerX = width/2;
+      playerY = height/2;
+      if (inventory.size() > 0) {
+        PVector temp = inventory.get(inventory.size() - 1);
+        inventory.remove(inventory.size() - 1);
+        items.add(temp) ; 
+      }
+      
+    }
+  }  
 }
 
 void keyPressed() {
   int targetX = playerX;
   int targetY = playerY;
 
-  // Calculate the target position based on the player's movement
   if (keyCode == UP) {
     targetY -= tileSize;
   } 
@@ -58,29 +77,22 @@ void keyPressed() {
   } 
 
   else if (keyCode == ' ') {
-    //if (hasItem) {
-    //  // Player already has an item, cannot pick up another
-    //  return;
-    //}
-    
-    // Check if the player is on an item tile
+
     for (PVector item : items) {
       if (playerX == item.x && playerY == item.y) {
-        // Player found an item, add it to the inventory
-        inventory.add(item);
+
+        inventory.add(item);       
         items.remove(item);
-        hasItem = true;
+
         break;
       }
     }
   }
   
-  // Check if the target position is within the game boundaries
+
   if (targetX >= 0 && targetX < width && targetY >= 0 && targetY < height) {
-    // Check if the target position is within the walkable areas
     color targetColor = gameMap.get(targetX + tileSize/2, targetY + tileSize/2);
     if (targetColor != color(0)) {
-      // Move the player to the target position
       playerX = targetX;
       playerY = targetY;
     }
@@ -106,16 +118,27 @@ void displayInventory() {
   fill(400, 200, 200);
   text("Inventory:", 20, 30);
   
-  // Display the items in the inventory
-  int inventorySize = inventory.size();
-  for (int i = 0; i < inventorySize; i++) {
-    PVector item = inventory.get(i);
-
+  for (int i = 0; i < inventory.size(); i++) {
     text("Item " + (i + 1) + ": " + itemName[i], 20, 60 + i * 30);
   }
-  
-  if (hasItem) {
+
+  if (inventory.size() > 0 ) {
  
-    text("Current Item: "  + itemName[inventorySize - 1] , 20, 60 + inventorySize * 30);
+    text("Current Item: "  + itemName[inventory.size() - 1] , 20, 60 + inventory.size() * 30);
+  }
+}
+
+void generateRedTiles() {
+  int numTiles = 5; 
+  for (int i = 0; i < numTiles; i++) {
+    int startX = (int) random(0, width);
+    int startY = (int) random(0, height);
+    if (gameMap.get(startX, startY) != color(0)) {
+      RedTile tile = new RedTile(startX, startY);
+      redTiles.add(tile);
+    }
+    else {
+      numTiles += 1; 
+    }
   }
 }
