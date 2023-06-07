@@ -1,77 +1,121 @@
-PVector Avatar;
-PImage img;
-PImage backgroundimg;
-int dir;
+PImage gameMap;
+int playerX;
+int playerY;
+int tileSize = 20;
+boolean hasItem;
+ArrayList<PVector> items;
+ArrayList<PVector> inventory;
+ArrayList<String> uritemName;
+String[] itemName;
 
 void setup() {
-  size(480, 350);
-  noStroke();
-  fill(0);
-  Avatar = new PVector(220, 250);
-  img = loadImage("avatarpixel.png");
-  backgroundimg = loadImage("backgroundpixel.png");
+  size(600, 400);
+  gameMap = loadImage("game_map.png");  // Load the game map image
+  playerX = width/2;  // Start the player in the middle of the screen horizontally
+  playerY = height/2;  // Start the player in the middle of the screen vertically
+  hasItem = false;
+  items = new ArrayList<PVector>();
+  inventory = new ArrayList<PVector>();
+  placeItems();  // Place the items randomly on the map
+  itemName = new String[5];
+  itemName[0] = "item1";
+  itemName[1] = "item2";
+  itemName[2] = "item3";
+  itemName[3] = "item4";
+  itemName[4] = "item5";  
+}
 
-        noStroke();
-      fill(0);
-    }
+void draw() {
+  background(255);
+  image(gameMap, 0, 0);  // Display the game map
 
-    void draw() {
-      background(backgroundimg);
-      image(img, Avatar.x, Avatar.y, 25, 25);
-      
-      checkPos();
-      updateAvatar();
-    }
+  
+  // Draw the player as a red rectangle
+  fill(255, 0, 0);
+  rect(playerX, playerY, tileSize, tileSize);
+  
+  if (key == 'i') {
+    displayInventory();
+  }
+}
 
-    void updateAvatar() {
-      image(img, Avatar.x, Avatar.y, 25, 25);
-    }
+void keyPressed() {
+  int targetX = playerX;
+  int targetY = playerY;
+
+  // Calculate the target position based on the player's movement
+  if (keyCode == UP) {
+    targetY -= tileSize;
+  } 
+  else if (keyCode == DOWN) {
+    targetY += tileSize;
+  } 
+  else if (keyCode == LEFT) {
+    targetX -= tileSize;
+  } 
+  else if (keyCode == RIGHT) {
+    targetX += tileSize;
+  } 
+
+  else if (keyCode == ' ') {
+    //if (hasItem) {
+    //  // Player already has an item, cannot pick up another
+    //  return;
+    //}
     
-    void checkPos(){
-      int width = backgroundimg.width;
-      int height = backgroundimg.height; 
-     backgroundimg.loadPixels();
-     for( int y  = 0; y < height ; y++) {
-       for (int x = 0 ; x < width; x++) {
-         float r  = red(backgroundimg.pixels[y * width + x]) ; 
-         float g  = green(backgroundimg.pixels[y * width + x]) ; 
-         float b  = blue(backgroundimg.pixels[y * width + x] );          
-      if ((r == 201 && g == 94 && b == 40) || (r == 0 && g == 0 & b == 0)) {
-        PVector barrierPos = new PVector(x, y);
-        if (barrierPos == Avatar) {
-          if (dir == 1) {
-            Avatar.y += 10;
-          }
-          if (dir == 2) {
-            Avatar.y -= 10;
-          }
-          if (dir == 3) {
-            Avatar.x += 10;
-          }
-          if (dir == 4) {
-            Avatar.x -= 10;
-          }
-        }
-        }          
-      }     
-     }
-    }
-      
-    void keyPressed() {
-      if (key == 'w'){
-        Avatar.y -= 10;
-        dir = 1;
-      }
-      else if (key == 's') {
-        Avatar.y += 10;
-        dir = 2;
-      }
-      else if (key == 'a') {
-        Avatar.x -= 10;
-        dir = 3;
-      }
-      else if (key == 'd') {
-        Avatar.x += 10;
-        dir = 4;
+    // Check if the player is on an item tile
+    for (PVector item : items) {
+      if (playerX == item.x && playerY == item.y) {
+        // Player found an item, add it to the inventory
+        inventory.add(item);
+        items.remove(item);
+        hasItem = true;
+        break;
       }
     }
+  }
+  
+  // Check if the target position is within the game boundaries
+  if (targetX >= 0 && targetX < width && targetY >= 0 && targetY < height) {
+    // Check if the target position is within the walkable areas
+    color targetColor = gameMap.get(targetX + tileSize/2, targetY + tileSize/2);
+    if (targetColor != color(0)) {
+      // Move the player to the target position
+      playerX = targetX;
+      playerY = targetY;
+    }
+  }
+}
+
+void placeItems() {
+  int mapWidth = gameMap.width;
+  int mapHeight = gameMap.height;
+  
+  for (int x = 0; x < mapWidth; x++) {
+    for (int y = 0; y < mapHeight; y++) {
+      color tileColor = gameMap.get(x, y);
+      if (tileColor == color(0, 255, 0)) {
+        items.add(new PVector(x, y));
+      }
+    }
+  }
+}
+
+void displayInventory() {
+  textSize(20);
+  fill(400, 200, 200);
+  text("Inventory:", 20, 30);
+  
+  // Display the items in the inventory
+  int inventorySize = inventory.size();
+  for (int i = 0; i < inventorySize; i++) {
+    PVector item = inventory.get(i);
+
+    text("Item " + (i + 1) + ": " + itemName[i], 20, 60 + i * 30);
+  }
+  
+  if (hasItem) {
+ 
+    text("Current Item: "  + itemName[inventorySize - 1] , 20, 60 + inventorySize * 30);
+  }
+}
