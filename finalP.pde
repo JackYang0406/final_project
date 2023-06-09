@@ -1,8 +1,8 @@
 PImage gameMap;
+PImage AvatarImg;
 int playerX;
 int playerY;
 int tileSize = 20;
-boolean hasItem;
 ArrayList<PVector> items;
 ArrayList<PVector> inventory;
 ArrayList<String> uritemName;
@@ -13,27 +13,32 @@ ArrayList<PVector> removedItem;
 
 void setup() {
   size(600, 400);
+  AvatarImg = loadImage("advatar.png");
   gameMap = loadImage("game_map.png");  
   playerX = width/2;  
   playerY = height/2;  
-  hasItem = false;
+  
+
+
   items = new ArrayList<PVector>();
   inventory = new ArrayList<PVector>();
   placeItems(); 
   itemName = new String[5];
-  itemName[0] = "item1";
-  itemName[1] = "item2";
-  itemName[2] = "item3";
-  itemName[3] = "item4";
-  itemName[4] = "item5";  
+  itemName[0] = "apple";
+  itemName[1] = "trash";
+  itemName[2] = "candy";
+  itemName[3] = "key";
+  itemName[4] = "book";  
   
   redTiles = new ArrayList<RedTile>();
   generateRedTiles();
+  
 }
-
+ 
 void draw() {
   background(255);
   image(gameMap, 0, 0); 
+
 
   fill(0, 0, 255);
   rect(playerX, playerY, tileSize, tileSize);
@@ -56,8 +61,21 @@ void draw() {
       }
       
     }
-  }  
+  }
+  image(AvatarImg, playerX, playerY, tileSize, tileSize);
+    if (gameMap.get(playerX, playerY) ==  color(0, 0, 255) && inventory.size() > 3) {
+      displayWinScreen();
+    }
 }
+
+void displayWinScreen() {
+  background(0);
+  textSize(32);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text("You Win!", width/2, height/2);
+}
+
 
 void keyPressed() {
   int targetX = playerX;
@@ -142,3 +160,6 @@ void generateRedTiles() {
     }
   }
 }
+
+
+  

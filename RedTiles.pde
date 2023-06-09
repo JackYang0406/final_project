@@ -3,14 +3,16 @@ class RedTile {
   int y;
   int speedX;
   int speedY;
+  PImage cover; 
   
   RedTile(int startX, int startY) {
     x = startX;
     y = startY;
-    speedX = (int) random(-2, 3);  
-    speedY = (int) random(-2, 3);  
+
+    speedX = (int) random(1, 5);  
+    speedY = (int) random(1, 5);  
   }
-  
+
   void update() {
     int newX = x + speedX;
     int newY = y + speedY;
